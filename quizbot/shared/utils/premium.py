@@ -17,6 +17,8 @@ async def is_premium_user(user_id: int) -> bool:
     """
     if config.FREE_BOT:
         return True
+    if config.OWNER_ID and user_id == config.OWNER_ID:
+        return True
     repo = UserRepository(get_db())
     return await repo.is_premium(user_id)
 
