@@ -2,19 +2,6 @@
 
 # 🎯 Quizbot
 
-**A production-grade Telegram quiz platform — create, manage, and run interactive quizzes at scale.**
-
-[![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](https://python.org)
-[![Pyrogram](https://img.shields.io/badge/Pyrogram-2.0-009485?logo=telegram)](https://pyrogram.org)
-[![PTB](https://img.shields.io/badge/python--telegram--bot-22.8-0088CC?logo=telegram)](https://python-telegram-bot.org)
-[![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-47A248?logo=mongodb)](https://mongodb.com)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white)](https://docker.com)
-
----
-
-**Originally developed by [devgagan](https://github.com/devgaganin) &nbsp;•&nbsp; Sponsored by [Qzio](https://qzio.in)**
-
 ---
 
 ### 🤖 Try the Live Bot → [@advance_quiz_bot](https://t.me/advance_quiz_bot)
