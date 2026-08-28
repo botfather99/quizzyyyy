@@ -1,9 +1,28 @@
 FROM python:3.11-slim
 
+ENV DEBIAN_FRONTEND=noninteractive \
+    PIP_NO_CACHE_DIR=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
 # System deps required by weasyprint (PDF generation) and PyMuPDF.
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf2.0-0 libcairo2 \
-    libffi-dev shared-mime-info fonts-liberation \
+# Retry apt-get a few times to work around transient mirror/network
+# failures, and always clean up the apt cache afterwards to keep the
+# image small.
+RUN set -eux; \
+    for i in 1 2 3; do \
+        apt-get update && break || sleep 5; \
+    done; \
+    apt-get install -y --no-install-recommends \
+        ca-certificates \
+        libpango-1.0-0 \
+        libpangocairo-1.0-0 \
+        libgdk-pixbuf2.0-0 \
+        libcairo2 \
+        libffi-dev \
+        shared-mime-info \
+        fonts-liberation \
+    && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
