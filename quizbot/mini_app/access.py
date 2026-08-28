@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from typing import Optional
 
 from quizbot.database import AuthChatRepository, BatchRepository, UserRepository, get_db
+from quizbot.shared import config
 from quizbot.shared.utils import is_premium_user
 
 
@@ -37,6 +38,9 @@ async def check_play_access(quiz: dict, user_id: int) -> AccessResult:
     if creator_id == user_id:
         return AccessResult(allowed=True)
 
+    if config.OWNER_ID and user_id == config.OWNER_ID:
+        return AccessResult(allowed=True)
+
     auth_repo = AuthChatRepository(get_db())
     auth_users = await auth_repo.get(creator_id)
     if user_id in auth_users:
@@ -60,6 +64,8 @@ async def check_premium_gate(user_id: int, require_premium: bool) -> AccessResul
     (independent of individual quiz pricing). Off by default -- controlled
     by the caller, not hardcoded here."""
     if not require_premium:
+        return AccessResult(allowed=True)
+    if config.OWNER_ID and user_id == config.OWNER_ID:
         return AccessResult(allowed=True)
     if await is_premium_user(user_id):
         return AccessResult(allowed=True)
