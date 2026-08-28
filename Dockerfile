@@ -15,12 +15,7 @@ RUN set -eux; \
     done; \
     apt-get install -y --no-install-recommends \
         ca-certificates \
-        libpango-1.0-0 \
-        libpangocairo-1.0-0 \
-        libgdk-pixbuf2.0-0 \
-        libcairo2 \
         libffi-dev \
-        shared-mime-info \
         fonts-liberation \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
