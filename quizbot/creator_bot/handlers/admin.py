@@ -25,6 +25,7 @@ from quizbot.shared.rich_quiz import send_rich_or_fallback
 from quizbot.shared.utils.http import request_json
 
 from .. import state
+from ..auth_guard import require_auth
 from ..premium_grant import grant_and_notify
 from ..ratelimit import ratelimit
 
@@ -177,12 +178,10 @@ def _is_owner_or_admin(user_id: int) -> bool:
     return user_id == config.OWNER_ID or user_id in config.ADMIN_IDS
 
 
+@require_auth
 async def gcast_cmd(c: Client, m: Message) -> None:
     """/gcast -- (owner/admin only) broadcast the replied-to message to
     every registered user."""
-    uid = m.from_user.id
-    if not _is_owner_or_admin(uid):
-        return
     if not m.reply_to_message:
         await m.reply("Reply to the message you want to broadcast.")
         return
@@ -223,10 +222,9 @@ async def gcast_cmd(c: Client, m: Message) -> None:
     await progress.edit_text(f"Done: {sent}/{total} sent, {failed} failed")
 
 
+@require_auth
 async def stopcast_cmd(c: Client, m: Message) -> None:
     """/stopcast -- (owner/admin only) interrupt an active /gcast run."""
-    if not _is_owner_or_admin(m.from_user.id):
-        return
     if not state.broadcast.active:
         await m.reply("No active broadcast.")
         return
@@ -253,11 +251,10 @@ async def statses_cmd(c: Client, m: Message) -> None:
         await status.edit_text(f"Error: {exc}")
 
 
+@require_auth
 async def testapi_cmd(c: Client, m: Message) -> None:
     """/testapi -- (owner only) sanity-check DB connectivity. Replaces the
     legacy PHP-API connectivity test now that everything is MongoDB."""
-    if m.from_user.id != config.OWNER_ID:
-        return
     status = await m.reply("🔄 Testing database connectivity...")
     try:
         db = get_db()
@@ -366,3 +363,4 @@ def register(app: Client) -> None:
     app.on_message(filters.command("statses") & filters.private)(statses_cmd)
     app.on_message(filters.command("testapi") & filters.private)(testapi_cmd)
     app.on_message(filters.command(["leaders", "aspirants"]) & filters.private)(leaders_cmd)
+

@@ -16,6 +16,7 @@ from quizbot.database import AuthChatRepository, get_db
 from quizbot.shared import config
 from quizbot.shared.utils import is_premium_user, revoke_premium
 
+from ..auth_guard import require_auth
 from ..premium_grant import grant_and_notify
 from ..ratelimit import ratelimit
 from ..subscribe_gate import subscribe_gate
@@ -92,13 +93,10 @@ async def remall_auth_cmd(c: Client, m: Message) -> None:
 
 
 @ratelimit("default")
+@require_auth
 async def auth_cmd(c: Client, m: Message) -> None:
     """/auth <user_id> <duration> <unit> -- (owner only) manually grant
     premium, e.g. `/auth 123456 1 month`."""
-    uid = m.from_user.id
-    if uid != config.OWNER_ID and uid not in config.ADMIN_IDS:
-        await m.reply("Owner only.")
-        return
     parts = m.text.strip().split()
     if len(parts) != 4:
         await m.reply("Format: `/auth user_id duration unit`\nExample: `/auth 123456 1 month`")
@@ -123,12 +121,9 @@ async def auth_cmd(c: Client, m: Message) -> None:
 
 
 @ratelimit("default")
+@require_auth
 async def removeuser_cmd(c: Client, m: Message) -> None:
     """/removeuser <user_id> -- (owner only) revoke a user's premium."""
-    uid = m.from_user.id
-    if uid != config.OWNER_ID and uid not in config.ADMIN_IDS:
-        await m.reply("Owner only.")
-        return
     parts = m.text.strip().split()
     if len(parts) != 2:
         await m.reply("Format: `/removeuser <user_id>`")
@@ -152,3 +147,4 @@ def register(app: Client) -> None:
     app.on_message(filters.command("remall") & filters.private)(remall_auth_cmd)
     app.on_message(filters.command("auth") & filters.private)(auth_cmd)
     app.on_message(filters.command("removeuser") & filters.private)(removeuser_cmd)
+
