@@ -95,6 +95,8 @@ def clear_quiz_list_cache(uid: int) -> None:
 # env var (see shared/config.py) -- these are NOT derived from the Runner
 # Bot's generic RATE_LIMIT_WINDOW/MAX_REQUESTS knob, which has different
 # defaults suited to a different bot.
+# NOTE: the bot owner (config.OWNER_ID) and admins (config.ADMIN_IDS) bypass
+# these limits entirely -- see ratelimit.py's `_is_owner_or_admin` check.
 RATE_LIMIT_BUCKETS: dict[str, tuple[int, int]] = {
     "default": config.CREATOR_RATE_LIMIT_DEFAULT,
     "create": config.CREATOR_RATE_LIMIT_CREATE,
@@ -136,7 +138,13 @@ def check_rate_limit(user_id: int, bucket: str = "default") -> Optional[int]:
 
 def rate_limit_status_text(user_id: int) -> str:
     """Human-readable summary of the user's current rate-limit usage,
-    used by /limit."""
+    used by /limit. The bot owner and admins always see a "no limits"
+    message, since they bypass rate limiting entirely."""
+    if user_id == config.OWNER_ID or user_id in config.ADMIN_IDS:
+        return (
+            "👑 **You are an admin!**\n\n"
+            "No rate limits apply to you. Enjoy unlimited command usage! 🚀"
+        )
     labels = {
         "default": "General commands",
         "create": "/create + /done",

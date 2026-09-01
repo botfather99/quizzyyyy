@@ -13,11 +13,19 @@ from typing import Awaitable, Callable
 
 from pyrogram.types import Message
 
+from quizbot.shared import config
+
 from . import state
 
 logger = logging.getLogger(__name__)
 
 Handler = Callable[..., Awaitable[None]]
+
+
+def _is_owner_or_admin(user_id: int) -> bool:
+    """True if `user_id` is the bot owner or a configured admin -- these
+    users bypass all command rate limits."""
+    return user_id == config.OWNER_ID or user_id in config.ADMIN_IDS
 
 
 def ratelimit(bucket: str = "default") -> Callable[[Handler], Handler]:
@@ -26,6 +34,8 @@ def ratelimit(bucket: str = "default") -> Callable[[Handler], Handler]:
         async def wrapper(client, message: Message, *args, **kwargs):
             user = message.from_user
             if user is None:
+                return await fn(client, message, *args, **kwargs)
+            if _is_owner_or_admin(user.id):
                 return await fn(client, message, *args, **kwargs)
             wait_minutes = state.check_rate_limit(user.id, bucket)
             if wait_minutes is None:
