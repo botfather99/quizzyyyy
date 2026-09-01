@@ -18,6 +18,7 @@ from typing import Any, Optional
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Poll, Update
 from telegram.constants import ChatType, ParseMode
 from telegram.ext import Application, CommandHandler, ContextTypes, PollAnswerHandler
+from ..auth_middleware import is_authorized, require_admin_or_authorized
 
 from quizbot.database import (
     AttemptRepository,
@@ -1223,6 +1224,8 @@ async def start_quiz(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
     from ..state import pending_quiz_settings
 
     chat_id = update.message.chat_id
+    if not await is_authorized(update, ctx):
+        return
     try:
         chat_type = update.message.chat.type
         is_anon = _is_anon_admin(update.message)
@@ -1389,6 +1392,8 @@ async def _send_access_denied(ctx: ContextTypes.DEFAULT_TYPE, chat_id: int, quiz
 async def stop_quiz(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
     """/stop -- ends the running quiz in this chat (admin-only in groups)."""
     chat_id = update.message.chat.id
+    if not await is_authorized(update, ctx):
+        return
     try:
         chat_type = update.message.chat.type
         is_anon = _is_anon_admin(update.message)
@@ -1426,6 +1431,8 @@ async def stop_quiz(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
 
 async def pause_quiz(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
     """/pause -- pauses the running quiz (admin-only in groups)."""
+    if not await is_authorized(update, ctx):
+        return
     chat_id = update.message.chat.id
     try:
         chat_type = update.message.chat.type
@@ -1450,6 +1457,8 @@ async def pause_quiz(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
 
 async def resume_quiz(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
     """/resume -- resumes a paused quiz (admin-only in groups)."""
+    if not await is_authorized(update, ctx):
+        return
     chat_id = update.message.chat.id
     try:
         chat_type = update.message.chat.type
@@ -1505,18 +1514,24 @@ async def _adjust_timer(update: Update, ctx: ContextTypes.DEFAULT_TYPE, delta: i
 
 
 async def fast_quiz(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
+    if not await is_authorized(update, ctx):
+        return
     """/fast -- shortens the remaining per-question timer by 5s (or a given amount)."""
     try:
         await _adjust_timer(update, ctx, -5)
     except Exception as e:
         logger.error("fast_quiz error: %s", e)
 
+    if not await is_authorized(update, ctx):
+        return
 
 async def slow_quiz(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
     """/slow -- lengthens the remaining per-question timer by 5s (or a given amount)."""
     try:
         await _adjust_timer(update, ctx, 5)
     except Exception as e:
+    if not await is_authorized(update, ctx):
+        return
         logger.error("slow_quiz error: %s", e)
 
 
@@ -1537,6 +1552,8 @@ async def normal_quiz(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
             return
 
         await session_mgr.update(chat_id, {"modified_timer_offset": 0})
+    if not await is_authorized(update, ctx):
+        return
         await safe_send_message(ctx, chat_id, "⏱️ Timer reset to default.")
     except Exception as e:
         logger.error("normal_quiz error: %s", e)

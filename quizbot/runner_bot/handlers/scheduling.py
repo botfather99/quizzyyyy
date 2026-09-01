@@ -10,6 +10,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import time
+from ..auth_middleware import is_authorized
 from datetime import datetime, timedelta
 from typing import Any
 
@@ -151,6 +152,8 @@ def init_schedule_manager(scheduler: AsyncIOScheduler) -> ScheduledQuizManager:
 
 async def schedule_command(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
     """`/schedule QUIZ_ID HH:MM` -- schedule a quiz to auto-launch today
+    if not await is_authorized(update, ctx):
+        return
     (or tomorrow if the time has already passed), IST."""
     chat_id = update.message.chat_id
     try:
@@ -218,6 +221,8 @@ async def viewschedule_command(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -
     """`/viewschedule` -- lists this group's pending scheduled quizzes."""
     chat_id = update.message.chat_id
     try:
+    if not await is_authorized(update, ctx):
+        return
         if update.message.chat.type == ChatType.PRIVATE:
             await safe_send_message(ctx, chat_id, "❌ Groups only.")
             return
@@ -249,6 +254,8 @@ async def cancelschedule_command(update: Update, ctx: ContextTypes.DEFAULT_TYPE)
     chat_id = update.message.chat_id
     try:
         user_id = update.message.from_user.id
+    if not await is_authorized(update, ctx):
+        return
         if update.message.chat.type == ChatType.PRIVATE:
             await safe_send_message(ctx, chat_id, "❌ Groups only.")
             return

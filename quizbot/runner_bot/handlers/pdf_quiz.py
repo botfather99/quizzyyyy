@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import asyncio
 import base64
+from ..auth_middleware import is_authorized
 import logging
 import os
 import time
@@ -32,6 +33,8 @@ logger = logging.getLogger(__name__)
 
 async def pdfquiz_command(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
     """Reply to a PDF with `/pdfquiz [page_range]` to start.
+    if not await is_authorized(update, ctx):
+        return
 
     Usage:
       /pdfquiz          -- asks for a page range interactively
@@ -161,6 +164,8 @@ async def _count_pdf_pages(pdf_path: str) -> int:
 
 async def pdfquiz_message_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> bool:
     """Handle a plain-text page-range reply during the /pdfquiz setup step.
+    if not await is_authorized(update, ctx):
+        return False
     Returns True if the message was consumed by this flow."""
     try:
         user_id = update.message.from_user.id
@@ -190,9 +195,13 @@ async def pdfquiz_message_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE
 
 async def pdfquiz_text_gate(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
     """MessageHandler entry point: silently ignores text outside the /pdfquiz flow."""
+    if not await is_authorized(update, ctx):
+        return
     await pdfquiz_message_handler(update, ctx)
 
 
+    if not await is_authorized(update, ctx):
+        return
 async def pdfquiz_callback(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
     """Handle all `pdfq_`-prefixed callbacks."""
     try:

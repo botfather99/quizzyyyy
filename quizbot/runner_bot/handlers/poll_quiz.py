@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+from ..auth_middleware import is_authorized
 from typing import Any, Optional
 
 from telegram import Poll, Update
@@ -151,6 +152,8 @@ async def run_channel_pollquiz(ctx: ContextTypes.DEFAULT_TYPE, chat_id: int, qui
 
 async def pollquiz_channel_command(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
     """`/pollquiz QUIZID` -- runs in a group/supergroup (or as a direct
+    if not await is_authorized(update, ctx):
+        return
     command in a channel that allows bot commands)."""
     chat_id = update.message.chat_id
     try:
@@ -196,6 +199,8 @@ async def pollquiz_channel_command(update: Update, ctx: ContextTypes.DEFAULT_TYP
 
 async def pollstop_command(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
     """`/pollstop` -- cancels a running `/pollquiz` in this chat."""
+    if not await is_authorized(update, ctx):
+        return
     chat_id = update.message.chat_id
     try:
         try:

@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import logging
 import random
+from ..auth_middleware import is_authorized
 import time
 
 from telegram import Update
@@ -26,6 +27,8 @@ logger = logging.getLogger(__name__)
 
 async def mix_command(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
     """Fetch an equal share of questions from each given quiz id (min 2
+    if not await is_authorized(update, ctx):
+        return
     ids, 20-100 total questions) and run them as one instant quiz."""
     chat_id = update.message.chat_id
     try:
