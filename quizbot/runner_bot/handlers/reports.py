@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import logging
 
+from ..auth_middleware import is_authorized
 from telegram import Update
 from telegram.constants import ChatType, ParseMode
 from telegram.ext import Application, CallbackQueryHandler, CommandHandler, ContextTypes
@@ -31,6 +32,8 @@ async def _require_group_admin(ctx: ContextTypes.DEFAULT_TYPE, chat_id: int, use
 
 async def html_command(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
     """`/html` -- toggle HTML quiz-report generation for this chat."""
+    if not await is_authorized(update, ctx):
+        return
     chat_id = update.message.chat_id
     try:
         if update.message.chat.type != ChatType.PRIVATE:
@@ -49,6 +52,8 @@ async def html_command(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
 
 async def pdf_command(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
     """`/pdf` -- toggle PDF quiz-report generation for this chat."""
+    if not await is_authorized(update, ctx):
+        return
     chat_id = update.message.chat_id
     try:
         if update.message.chat.type != ChatType.PRIVATE:
@@ -65,6 +70,8 @@ async def pdf_command(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
         logger.error("pdf_command error: %s", e)
 
 
+    if not await is_authorized(update, ctx):
+        return
 async def compare_results(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
     """`compare_{qid}_{chat_id}` callback -- DMs the requesting user an
     analysis report comparing all attempts on this quiz recorded so far."""

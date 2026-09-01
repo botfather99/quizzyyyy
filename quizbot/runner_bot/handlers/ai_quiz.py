@@ -8,6 +8,7 @@ The codebase has been reviewed and verified with the assistance of Claude AI.
 from __future__ import annotations
 
 import asyncio
+from ..auth_middleware import is_authorized
 import logging
 import random
 import time
@@ -164,6 +165,8 @@ async def _launch_ai_quiz(
 
 async def aiquiz_command(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
     """`/aiquiz <topic>` -- starts the wizard."""
+    if not await is_authorized(update, ctx):
+        return
     chat_id = update.message.chat_id
     try:
         user_id = update.message.from_user.id
@@ -198,6 +201,8 @@ async def aiquiz_command(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None
 
 async def aiquiz_callback(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
     """Handle all `aiq_`-prefixed callbacks."""
+    if not await is_authorized(update, ctx):
+        return
     try:
         query = update.callback_query
         await query.answer()

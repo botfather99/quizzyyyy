@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import logging
 
+from ..auth_middleware import is_authorized
 from telegram import Update
 from telegram.constants import ChatType, ParseMode
 from telegram.ext import Application, CommandHandler, ContextTypes
@@ -29,6 +30,8 @@ SUPPORTED_LANGS = {
 
 async def trans_command(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
     """`/trans` (no args) shows current status/usage; `/trans <code>` turns
+    if not await is_authorized(update, ctx):
+        return
     translation on for that language; running it again with the same
     effective toggle turns translation back off."""
     chat_id = update.message.chat_id

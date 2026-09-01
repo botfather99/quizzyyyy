@@ -4,6 +4,7 @@ This project was originally developed by Gagan (github.com/devgaganin).
 Reference: https://t.me/advance_quiz_bot
 The codebase has been reviewed and verified with the assistance of Claude AI.
 """
+from ..auth_middleware import is_authorized
 
 from __future__ import annotations
 
@@ -42,11 +43,15 @@ HELP_TEXT = (
 
 
 async def help_command(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
+    if not await is_authorized(update, ctx):
+        return
     """`/help` -- command reference."""
     await safe_send_message(ctx, update.effective_chat.id, HELP_TEXT, parse_mode=ParseMode.HTML)
 
 
 async def handle_channel_command(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
+    if not await is_authorized(update, ctx):
+        return
     """Handle `/pollquiz` and `/pollstop` sent as channel posts (these
     arrive via `update.channel_post`, not `update.message`)."""
     from .poll_quiz import run_channel_pollquiz
