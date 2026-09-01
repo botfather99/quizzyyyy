@@ -18,6 +18,7 @@ from quizbot.shared import config
 from quizbot.shared.utils import is_premium_user
 
 from .. import state
+from ..auth_guard import require_auth
 from ..ratelimit import ratelimit
 from ..subscribe_gate import subscribe_gate
 
@@ -139,10 +140,9 @@ async def del_quiz_cmd(c: Client, m: Message) -> None:
     await m.reply(f"🗑️ Deleted `{qid}`.")
 
 
+@require_auth
 async def delall_cmd(c: Client, m: Message) -> None:
     """/delall -- (owner only) delete every quiz on the platform."""
-    if not _is_owner_or_admin(m.from_user.id):
-        return
     repo = QuizRepository(get_db())
     quizzes = await repo.list_all(limit=1_000_000)
     for q in quizzes:
@@ -151,11 +151,10 @@ async def delall_cmd(c: Client, m: Message) -> None:
 
 
 @ratelimit("default")
+@require_auth
 async def convertall_cmd(c: Client, m: Message) -> None:
     """/convertall -- (owner/admin only) convert every paid quiz to free.
     Intended for use inside a designated admin group chat."""
-    if not _is_owner_or_admin(m.from_user.id):
-        return
     status = await m.reply("🔄 Converting...")
     repo = QuizRepository(get_db())
     quizzes = await repo.list_all(limit=1_000_000)
@@ -295,11 +294,10 @@ async def setpromo_cmd(c: Client, m: Message) -> None:
         await status.edit_text(f"✅ Promo removed from **{count}** quizzes.")
 
 
+@require_auth
 async def ban_cmd(c: Client, m: Message) -> None:
     """/ban <quiz_id> -- (owner/admin only) ban the quiz's creator from the
     designated channel and delete all of their quizzes."""
-    if not _is_owner_or_admin(m.from_user.id):
-        return
     args = m.text.split()
     if len(args) < 2:
         await m.reply("⚠️ Usage: `/ban <quiz_id>`")
@@ -366,3 +364,4 @@ def register(app: Client) -> None:
     app.on_message(filters.command("setpromo") & filters.private)(setpromo_cmd)
     app.on_message(filters.command("ban") & filters.private)(ban_cmd)
     app.on_message(filters.command("listquiz"))(listquiz_cmd)
+
