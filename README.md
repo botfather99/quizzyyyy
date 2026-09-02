@@ -1,253 +1,272 @@
 <div align="center">
 
-# 🎯 Quizbot
+# 🎯 Quizzyyyy
+## ✨ The Cutest Quiz Platform Ever
+
+[![Python](https://img.shields.io/badge/Python-87.8%25-3776ab?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![HTML](https://img.shields.io/badge/HTML-12.1%25-E34C26?style=for-the-badge&logo=html5&logoColor=white)](https://html.spec.whatwg.org/)
+[![Love](https://img.shields.io/badge/Made%20with-Love%20%F0%9F%92%9C-ff69b4?style=for-the-badge)](https://github.com/botfather99)
 
 ---
 
-### 🤖 Try the Live Bot → [@advance_quiz_bot](https://t.me/advance_quiz_bot)
+### 👋 Created by [Berlin](https://github.com/botfather99) with ❤️
 
 </div>
 
 ---
 
-## 📋 Table of Contents
+## 🌟 Welcome to Quizzyyyy!
 
-- [Features](#-features)
-- [Architecture](#-architecture)
-- [Prerequisites](#-prerequisites)
-- [Quick Start](#-quick-start)
-- [Configuration Reference](#-configuration-reference)
-- [Running the Platform](#-running-the-platform)
-  - [Run Everything](#run-everything)
-  - [Run One Component Only](#run-one-component-only)
-  - [systemd (VPS, always-on)](#systemd-vps-always-on)
-- [Docker Deployment](#-docker-deployment)
-- [Mini App — the Visual Quiz Player](#-mini-app--the-visual-quiz-player)
-- [Database](#-database)
-- [Credits](#-credits)
+Quizzyyyy is a **delightful, feature-rich quiz platform** that makes learning interactive and fun! Whether you're creating quizzes, taking exams, or building a quiz community, Quizzyyyy has you covered with cute UX and powerful features.
 
 ---
 
-## ✨ Features
+## ✨ Amazing Features
 
-| Category | Capability |
-|---|---|
-| **Quiz Creation** | Text input, forwarded Telegram quiz polls, file/PDF import, AI-generated quizzes |
-| **Quiz Formats** | Standard, sectional (per-section timers), practice & exam modes |
-| **Smart Filtering** | Strips `[1/100]`-style progress tags, usernames, links, and custom word lists from imported polls |
-| **Editing** | Shuffle questions, retitle, adjust timers, add/remove questions |
-| **Access Control** | Free and paid quiz tiers, batch access, auth-chat lists, optional premium gate |
-| **Analytics** | Per-user performance, leaderboards, sectional score breakdowns |
-| **HTML Reports** | Self-contained interactive HTML scorecards — question navigator, KaTeX/Markdown rendering, dark/light theme |
-| **Mini App** | Visual in-Telegram quiz player (practice + exam mode) as a Telegram WebApp |
-| **Inline Sharing** | Share any quiz by ID via inline query, with a working Play button |
-| **Payments** | Razorpay-backed premium plans |
-| **Broadcast** | Send announcements to all users (owner only) |
+<table>
+  <tr>
+    <td width="50%">
+      
+### 🎨 Quiz Creation
+- 📝 Text input support
+- 📤 Telegram poll imports
+- 📄 PDF file imports
+- 🤖 AI-generated quizzes
+- ✏️ Easy editing & customization
+
+    </td>
+    <td width="50%">
+      
+### 📊 Smart Analytics
+- 👤 Per-user performance tracking
+- 🏆 Leaderboards & rankings
+- 📈 Sectional score breakdowns
+- 📋 Detailed progress reports
+- 🎓 Performance insights
+
+    </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      
+### 🎮 Interactive Modes
+- 📚 Practice mode with instant feedback
+- 🎯 Exam mode for serious testing
+- ⏱️ Sectional timers
+- 🎪 Standard & advanced formats
+- 🔗 Inline sharing features
+
+    </td>
+    <td width="50%">
+      
+### 🔐 Smart Control
+- 💰 Free & premium tiers
+- 🔑 Batch access management
+- 🛡️ Auth-chat lists
+- 👑 Admin controls
+- 🚀 Payment integration
+
+    </td>
+  </tr>
+</table>
 
 ---
 
-## 🏗 Architecture
+## 🏗️ Platform Architecture
 
 ```
-quizbot/
-├── database/            Shared async MongoDB layer
-│   ├── db.py             Motor connection manager + automatic index setup
-│   └── repositories.py   One repository class per domain (users, quizzes, payments, ...)
+Quizzyyyy Architecture
+├── 🤖 Creator Bot (Pyrogram)
+│   ├── Quiz creation & editing
+│   ├── PDF/poll imports
+│   ├── Batch management
+│   └── Payment processing
 │
-├── shared/               Code shared by both bots
-│   ├── config.py          All configuration & secrets, loaded from .env
-│   ├── utils/             Text cleanup, premium checks, async file I/O
-│   └── html/              Quiz-report HTML generator (exam UI + analysis)
+├── 🎮 Runner Bot (python-telegram-bot)
+│   ├── Quiz sessions
+│   ├── Real-time scoring
+│   ├── Leaderboard management
+│   └── AI generation
 │
-├── creator_bot/          Pyrogram bot — quiz creation, editing, batches, payments
-│   ├── bot.py             Client setup + run_creator_bot()
-│   └── handlers/          One module per feature area
+├── 🎨 Mini App (FastAPI)
+│   ├── Visual quiz player
+│   ├── Practice & exam modes
+│   ├── Interactive UI
+│   └── Secure authentication
 │
-├── runner_bot/           python-telegram-bot bot — playing quizzes, AI generation
-│   ├── bot.py             Application setup + run_runner_bot()
-│   └── handlers/          One module per feature area
-│
-└── mini_app/             FastAPI Mini App — the visual "Play" quiz player
-    ├── telegram_auth.py   Verifies Telegram WebApp initData (HMAC-SHA256)
-    ├── player_service.py  Play-session state, scoring, DB persistence
-    ├── routes.py          FastAPI app + /api/* endpoints
-    └── static/index.html  Single-file frontend (practice + exam mode UI)
-
-run.py                  Combined launcher — starts both bots (+ Mini App, if configured)
-requirements.txt
-Procfile                 Heroku process declaration (single web dyno)
-Dockerfile / docker-compose.yml
-.env.example             Environment variable template
+└── 🗄️ MongoDB Database
+    ├── User profiles
+    ├── Quiz content
+    ├── Performance data
+    └── Payment records
 ```
 
-Everything runs from **one process** (`run.py`) by default, sharing a single async MongoDB database:
-
-- **Creator Bot** (Pyrogram) handles quiz creation, editing, imports, batches, and payments.
-- **Runner Bot** (python-telegram-bot) handles quiz sessions — sending polls, tracking answers, building leaderboards.
-- **Mini App** (FastAPI, optional) serves a visual in-Telegram quiz player when a public domain is configured.
-
 ---
 
-## 🔧 Prerequisites
+## 🚀 Quick Start
 
-| Requirement | Minimum Version | Notes |
-|---|---|---|
-| Python | 3.11+ | |
-| MongoDB | Atlas free tier (M0) or self-hosted | `MONGODB_URI` in `.env` |
-| Telegram API credentials | — | From [my.telegram.org](https://my.telegram.org) |
-| Two Telegram bot tokens | — | same token for both runner and creator u can keep seperate too|
+### Prerequisites
+- **Python** 3.11+
+- **MongoDB** (free Atlas cluster works great!)
+- **Telegram Bot Tokens** (get from [@BotFather](https://t.me/botfather))
+- **Telegram API Credentials** (from [my.telegram.org](https://my.telegram.org))
 
----
-
-## ⚡ Quick Start
+### Setup in 3 Steps
 
 ```bash
-python3 -m venv .venv && source .venv/bin/activate
+# 1️⃣ Clone & Setup Environment
+git clone https://github.com/botfather99/quizzyyyy
+cd quizzyyyy
+python3 -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# 2️⃣ Install Dependencies
 pip install -r requirements.txt
 
+# 3️⃣ Configure & Run
 cp .env.example .env
-nano .env          # fill in your values — see Configuration Reference below
-
+nano .env  # Fill in your credentials (see Configuration Reference)
 python run.py
 ```
 
-The database and all its indexes are created automatically on first connect — no manual schema step needed.
+That's it! 🎉 Your platform is now running!
 
 ---
 
 ## ⚙️ Configuration Reference
 
-All values live in `.env` (copy from [`.env.example`](.env.example)). Note: you must not expose these values in the repo you fork directly otherwise you may loose your bot, data (securely fill th[...]
+Create a `.env` file with these essential variables:
 
 | Variable | Required | Description |
-|---|---|---|
-| `API_ID` / `API_HASH` | ✅ | Telegram API credentials from [my.telegram.org](https://my.telegram.org) |
-| `CREATOR_BOT_TOKEN` | ✅ | Token for the Pyrogram bot (creation, editing, payments) |
-| `RUNNER_BOT_TOKEN` | ✅ | Token for the PTB bot (playing, scheduling, AI generation) |
-| `MONGODB_URI` | ✅ | MongoDB Atlas connection string |
+|----------|----------|-------------|
+| `API_ID` | ✅ | Your Telegram API ID from [my.telegram.org](https://my.telegram.org) |
+| `API_HASH` | ✅ | Your Telegram API Hash |
+| `CREATOR_BOT_TOKEN` | ✅ | Token for creation/editing bot |
+| `RUNNER_BOT_TOKEN` | ✅ | Token for quiz playing bot |
+| `MONGODB_URI` | ✅ | MongoDB connection string |
 | `MONGODB_DB_NAME` | ✅ | Database name (default: `quizbot`) |
 | `OWNER_ID` | ✅ | Your Telegram user ID |
-| `ADMIN_IDS` | ➖ | Space-separated additional admin user IDs |
-| `LOG_GROUP` | ➖ | Negative chat ID for error/log channel |
-| `BOT_GROUP` | ➖ | Main community group ID |
-| `CHANNEL_ID` | ➖ | Announcement channel ID |
-| `REQUIRED_SUB_CHANNEL` | ➖ | Channel users must join to use `/start`, `/create`, `/myquizzes`, `/add` |
-| `FREE_BOT` | ➖ | `true` to treat every user as premium |
-| `RAZORPAY_KEY_ID` / `RAZORPAY_KEY_SECRET` | ➖ | Leave blank to disable the `/pay` premium-purchase flow |
-| `PDF_API_BASE` | ➖ | Optional external PDF-generation microservice for `/testseries` |
-| `MINI_APP_DOMAIN` | ➖ | Public HTTPS URL for the Mini App — leave blank to disable it entirely |
-| `MINI_APP_HOST` / `MINI_APP_PORT` | ➖ | Local bind address behind your reverse proxy (default `0.0.0.0:8080`) |
-| `OPENROUTER_DEFAULT_KEYS` | ➖ | Comma-separated fallback AI provider keys |
+| `ADMIN_IDS` | ➖ | Space-separated admin IDs |
+| `MINI_APP_DOMAIN` | ➖ | Public HTTPS URL for the Mini App |
+| `RAZORPAY_KEY_ID` | ➖ | Razorpay API key (for payments) |
+| `RAZORPAY_KEY_SECRET` | ➖ | Razorpay API secret |
 
-Rate limits, session timeouts, and other tuning knobs have sensible defaults — see the comments in `.env.example` for the full list.
+**💡 Tip:** Copy `.env.example` and fill in your values. Keep this file private!
 
 ---
 
-## 🚀 Running the Platform
+## 🎮 Running the Platform
 
-### Run Everything
-
+### Start Everything
 ```bash
 python run.py
 ```
 
-Starts both bots, and the Mini App server too if `MINI_APP_DOMAIN` is set.
-
-### Run One Component Only
-
+### Start Specific Components
 ```bash
-python run.py --only creator   # Creator Bot only
-python run.py --only runner    # Runner Bot only
-python run.py --only miniapp   # Mini App server only
+python run.py --only creator    # Creator Bot only
+python run.py --only runner     # Runner Bot only
+python run.py --only miniapp    # Mini App only
 ```
 
-### systemd (VPS, always-on)
-
-```bash
-sudo nano /etc/systemd/system/quizbot.service
-```
-
-```ini
-[Unit]
-Description=Quizbot Platform
-After=network.target
-
-[Service]
-Type=simple
-User=ubuntu
-WorkingDirectory=/opt/quizbot
-ExecStart=/opt/quizbot/.venv/bin/python run.py
-Restart=always
-RestartSec=10
-EnvironmentFile=/opt/quizbot/.env
-StandardOutput=journal
-StandardError=journal
-
-[Install]
-WantedBy=multi-user.target
-```
-
-```bash
-sudo systemctl daemon-reload
-sudo systemctl enable --now quizbot
-sudo journalctl -u quizbot -f      # live logs
-```
-
----
-
-## 🐳 Docker Deployment
-
+### Docker Deployment
 ```bash
 docker compose up -d --build
 ```
 
-This starts the Creator Bot, Runner Bot, and (if `MINI_APP_DOMAIN` is set) the Mini App as separate containers, each connecting out to the same MongoDB Atlas cluster via `MONGODB_URI` — no loca[...]
-
-To skip the Mini App entirely:
-
+### VPS / Always-On Setup
 ```bash
-docker compose up -d --build creator-bot runner-bot
+sudo nano /etc/systemd/system/quizbot.service
+# [See systemd configuration]
+sudo systemctl enable --now quizbot
 ```
 
-**Heroku / other PaaS**: a single `Procfile` (`web: python run.py`) runs the whole platform from one dyno/process — set the same `.env` variables as Config Vars.
+---
+
+## 📱 Mini App Experience
+
+The cute **Mini App** is your visual quiz player!
+
+### 🎯 Practice Mode
+- ✅ Instant feedback after each answer
+- 📖 Explanation shown immediately
+- ⏭️ Auto-advance to next question
+- 🎨 Beautiful interactive UI
+
+### 🏆 Exam Mode
+- 🤐 Answers hidden until completion
+- 📊 Full detailed review at the end
+- 📈 Score breakdown by sections
+- 💯 Performance analytics
+
+**Access:** Open the "Play" button after creating a quiz!
 
 ---
 
-## 📱 Mini App — the Visual Quiz Player
+## 🗄️ Database
 
-A "Play" button (opened as a Telegram WebApp) appears after quiz creation and on inline-share cards, offering two modes:
-
-- **Practice mode** — instant correct/incorrect feedback with the explanation shown right after each answer, then auto-advance.
-- **Exam mode** — no answers revealed until the end, followed by a full top-to-bottom review of every question, your answer, the correct answer, and the explanation.
-
-It's strictly a player — no creation or editing happens here, and it enforces the same access rules as both bots (free/paid quizzes, batch access, auth-chat lists, optional premium gate).
-
-Telegram requires a public HTTPS URL for WebApp buttons, so put a reverse proxy or tunnel (nginx, Caddy, Cloudflare Tunnel, etc.) in front of the FastAPI server and set `MINI_APP_DOMAIN` accordin[...]
-
-Identity comes solely from Telegram's own `initData`, verified server-side via HMAC-SHA256 on every request. Quiz content in every API response is AES-256-GCM encrypted with a per-session key, an[...]
+- **Platform:** MongoDB Atlas
+- **Free Tier:** M0 cluster (perfect for starting!)
+- **Auto Setup:** All indexes created automatically
+- **Backup:** Atlas built-in backup & restore
 
 ---
 
-## 🗄 Database
+## 📊 Tech Stack
 
-Data lives in MongoDB Atlas — a free M0 cluster is enough to get started (see [Quick Start](#-quick-start)). `quizbot/database/db.py` connects via Motor and creates every required index automat[...]
+| Component | Technology |
+|-----------|-----------|
+| **Language** | Python 3.11+ |
+| **Telegram API** | Pyrogram & python-telegram-bot |
+| **Web Framework** | FastAPI |
+| **Database** | MongoDB with Motor async driver |
+| **Authentication** | HMAC-SHA256 verification |
+| **Encryption** | AES-256-GCM for secure sessions |
+| **Payments** | Razorpay integration |
+| **Frontend** | HTML5 + CSS3 + JavaScript |
 
 ---
 
-## 🙏 Credits
+## 🤝 Contributing
+
+We ❤️ contributions! Feel free to:
+- 🐛 Report bugs
+- ✨ Suggest features
+- 🔧 Submit pull requests
+- 📚 Improve documentation
+
+---
+
+## 📄 License
+
+This project is open source and available under the MIT License.
+
+---
+
+## 🙏 Credits & Acknowledgments
 
 <div align="center">
 
-| Role | |
-|---|---|
-| **Developed by** | [Berlin](https://github.com/botfather99) |
-| **Originally created by** | [devgagan](https://github.com/devgaganin) |
-| **Sponsored by** | [Qzio](https://qzio.in) — The Smart Quiz Platform |
-| **Telegram Libraries** | [Pyrogram](https://pyrogram.org) & [python-telegram-bot](https://python-telegram-bot.org) |
-| **Database** | [MongoDB Atlas](https://mongodb.com) |
+| Role | Contributor |
+|------|-------------|
+| **👨‍💻 Created & Maintained by** | [Berlin](https://github.com/botfather99) |
+| **🎯 Repository** | [github.com/botfather99/quizzyyyy](https://github.com/botfather99/quizzyyyy) |
+| **🎓 Originally Created by** | [devgagan](https://github.com/devgaganin) |
+| **🚀 Powered by** | Telegram API |
+| **📦 Dependencies** | [Pyrogram](https://pyrogram.org), [python-telegram-bot](https://python-telegram-bot.org), [MongoDB](https://mongodb.com), [FastAPI](https://fastapi.tiangolo.com) |
 
 ---
 
-*Built for educators, exam aspirants, and quiz creators.*
+### 💖 Made with love for quiz enthusiasts everywhere!
+
+**Questions?** Reach out to Berlin or check out the [repository](https://github.com/botfather99/quizzyyyy).
+
+</div>
+
+---
+
+<div align="center">
+
+⭐ **If you love Quizzyyyy, please give it a star!** ⭐
 
 </div>
