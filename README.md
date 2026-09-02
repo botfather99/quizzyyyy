@@ -117,7 +117,7 @@ The database and all its indexes are created automatically on first connect — 
 
 ## ⚙️ Configuration Reference
 
-All values live in `.env` (copy from [`.env.example`](.env.example)). Note: you must not expose these values in the repo you fork directly otherwise you may loose your bot, data (securely fill these vars and secret in the environment of the platform you are using) 
+All values live in `.env` (copy from [`.env.example`](.env.example)). Note: you must not expose these values in the repo you fork directly otherwise you may loose your bot, data (securely fill th[...]
 
 | Variable | Required | Description |
 |---|---|---|
@@ -201,7 +201,7 @@ sudo journalctl -u quizbot -f      # live logs
 docker compose up -d --build
 ```
 
-This starts the Creator Bot, Runner Bot, and (if `MINI_APP_DOMAIN` is set) the Mini App as separate containers, each connecting out to the same MongoDB Atlas cluster via `MONGODB_URI` — no local volume needed, since nothing is stored on the container's own filesystem.
+This starts the Creator Bot, Runner Bot, and (if `MINI_APP_DOMAIN` is set) the Mini App as separate containers, each connecting out to the same MongoDB Atlas cluster via `MONGODB_URI` — no loca[...]
 
 To skip the Mini App entirely:
 
@@ -222,15 +222,15 @@ A "Play" button (opened as a Telegram WebApp) appears after quiz creation and on
 
 It's strictly a player — no creation or editing happens here, and it enforces the same access rules as both bots (free/paid quizzes, batch access, auth-chat lists, optional premium gate).
 
-Telegram requires a public HTTPS URL for WebApp buttons, so put a reverse proxy or tunnel (nginx, Caddy, Cloudflare Tunnel, etc.) in front of the FastAPI server and set `MINI_APP_DOMAIN` accordingly. Leave it blank to disable the feature entirely — no Play buttons are shown, and the server doesn't start.
+Telegram requires a public HTTPS URL for WebApp buttons, so put a reverse proxy or tunnel (nginx, Caddy, Cloudflare Tunnel, etc.) in front of the FastAPI server and set `MINI_APP_DOMAIN` accordin[...]
 
-Identity comes solely from Telegram's own `initData`, verified server-side via HMAC-SHA256 on every request. Quiz content in every API response is AES-256-GCM encrypted with a per-session key, and the correct answer is never present in a question's payload before it's answered.
+Identity comes solely from Telegram's own `initData`, verified server-side via HMAC-SHA256 on every request. Quiz content in every API response is AES-256-GCM encrypted with a per-session key, an[...]
 
 ---
 
 ## 🗄 Database
 
-Data lives in MongoDB Atlas — a free M0 cluster is enough to get started (see [Quick Start](#-quick-start)). `quizbot/database/db.py` connects via Motor and creates every required index automatically on first connect, so there's no manual schema step. Both bots read and write through repository classes in `quizbot/database/repositories.py` — there's no separate API layer to keep in sync.
+Data lives in MongoDB Atlas — a free M0 cluster is enough to get started (see [Quick Start](#-quick-start)). `quizbot/database/db.py` connects via Motor and creates every required index automat[...]
 
 ---
 
@@ -240,7 +240,8 @@ Data lives in MongoDB Atlas — a free M0 cluster is enough to get started (see 
 
 | Role | |
 |---|---|
-| **Originally developed by** | [devgagan](https://github.com/devgaganin) |
+| **Developed by** | [Berlin](https://github.com/botfather99) |
+| **Originally created by** | [devgagan](https://github.com/devgaganin) |
 | **Sponsored by** | [Qzio](https://qzio.in) — The Smart Quiz Platform |
 | **Telegram Libraries** | [Pyrogram](https://pyrogram.org) & [python-telegram-bot](https://python-telegram-bot.org) |
 | **Database** | [MongoDB Atlas](https://mongodb.com) |
